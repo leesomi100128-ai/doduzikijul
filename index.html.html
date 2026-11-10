@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설월여자고등학교 디지털 현미경 사진전</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        seolwol: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#1c2d5a'
+                        },
+                        science: {
+                            emerald: '#10b981',
+                            purple: '#8b5cf6',
+                            rose: '#f43f5e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+        .micro-blur {
+            backdrop-filter: blur(8px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 bg-white/90 micro-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-seolwol-600 to-indigo-500 flex items-center justify-center text-white shadow-md">
+                        <i class="fa-solid fa-microscope text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-seolwol-600 tracking-wider block">설월여자고등학교</span>
+                        <h1 class="text-lg font-bold text-slate-900 leading-none">디지털 현미경 사진전 <span class="text-xs px-2 py-0.5 bg-seolwol-100 text-seolwol-700 rounded-full ml-1">2026</span></h1>
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="openUploadModal()" class="inline-flex items-center space-x-2 bg-seolwol-600 hover:bg-seolwol-700 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span class="hidden sm:inline">작품 등록하기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-seolwol-900 via-seolwol-800 to-slate-900 text-white py-12 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <span class="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-medium text-seolwol-100 mb-3 border border-white/20">
+                🔬 미시세계로의 탐구 여행
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight mb-3">
+                눈으로 볼 수 없는 아름다움을 기록하다
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+                설월여자고등학교 학생들이 직접 디지털 현미경으로 관찰하고 촬영한 소중한 기록들입니다. 각 반의 독창적인 탐구 결과를 감상해보세요.
+            </p>
+
+            <!-- Search Bar -->
+            <div class="max-w-xl mx-auto relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="searchInput" oninput="filterGallery()" placeholder="관찰 대상, 작가, 표본명을 검색해보세요 (예: 양파 세포, 미세플라스틱)" 
+                       class="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-seolwol-500 focus:bg-slate-900/80 text-sm transition-all">
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- Filter Controls -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 mb-8 space-y-4">
+            
+            <!-- Grade Select Buttons -->
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">학년 선택</label>
+                <div class="flex flex-wrap gap-2" id="gradeFilterContainer">
+                    <button onclick="setGradeFilter('all')" class="grade-btn active px-4 py-1.5 rounded-xl text-sm font-medium transition-all bg-seolwol-600 text-white shadow-sm">전체 학년</button>
+                    <button onclick="setGradeFilter('1')" class="grade-btn px-4 py-1.5 rounded-xl text-sm font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">1학년</button>
+                    <button onclick="setGradeFilter('2')" class="grade-btn px-4 py-1.5 rounded-xl text-sm font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">2학년</button>
+                    <button onclick="setGradeFilter('3')" class="grade-btn px-4 py-1.5 rounded-xl text-sm font-medium transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">3학년</button>
+                </div>
+            </div>
+
+            <!-- Class Select Buttons -->
+            <div>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">반 선택</label>
+                <div class="flex gap-2 overflow-x-auto pb-1 hide-scrollbar" id="classFilterContainer">
+                    <!-- Javascript generated class buttons -->
+                </div>
+            </div>
+
+            <!-- Category / Tag Filter -->
+            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                <div class="flex items-center space-x-2">
+                    <span class="font-semibold text-slate-700">정렬:</span>
+                    <select id="sortSelect" onchange="filterGallery()" class="bg-slate-100 border-none rounded-lg px-2 py-1 focus:ring-1 focus:ring-seolwol-500 text-slate-700">
+                        <option value="latest">최신순</option>
+                        <option value="likes">좋아요 많은순</option>
+                        <option value="views">조회수 높은순</option>
+                    </select>
+                </div>
+                <div id="resultCount" class="font-medium text-slate-600">
+                    총 <span class="text-seolwol-600 font-bold" id="totalCount">0</span>개의 작품
+                </div>
+            </div>
+        </div>
+
+        <!-- Photo Gallery Grid -->
+        <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Dynamic Photo Cards Inserted Here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400 text-2xl mb-4">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-700 mb-1">등록된 사진이 없습니다</h3>
+            <p class="text-slate-500 text-sm mb-4">해당 조건에 맞는 현미경 관찰 사진이 없습니다. 첫 번째 작품을 올려보세요!</p>
+            <button onclick="openUploadModal()" class="text-sm font-semibold text-seolwol-600 hover:text-seolwol-700 underline">작품 올리러 가기</button>
+        </div>
+
+    </main>
+
+    <!-- Photo Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 micro-blur flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden my-auto transform transition-all flex flex-col md:flex-row max-h-[90vh]">
+            <!-- Image Area -->
+            <div class="md:w-3/5 bg-slate-950 flex items-center justify-center relative min-h-[300px]">
+                <img id="modalImage" src="" alt="" class="max-h-[80vh] w-full object-contain">
+                <span id="modalMagnification" class="absolute top-4 left-4 bg-black/60 text-emerald-400 border border-emerald-500/30 font-mono text-xs px-3 py-1.5 rounded-full backdrop-blur-md">
+                    100x
+                </span>
+            </div>
+            
+            <!-- Details & Comments Area -->
+            <div class="md:w-2/5 p-6 flex flex-col justify-between overflow-y-auto bg-white">
+                <div>
+                    <!-- Header Info -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span id="modalClassBadge" class="bg-seolwol-50 text-seolwol-700 font-bold text-xs px-2.5 py-1 rounded-lg border border-seolwol-100">
+                            1학년 3반
+                        </span>
+                        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                            <i class="fa-solid fa-xmark text-xl"></i>
+                        </button>
+                    </div>
+
+                    <h2 id="modalTitle" class="text-xl font-bold text-slate-900 mb-2">식물 세포의 기공 관찰</h2>
+                    <p class="text-xs text-slate-500 mb-4 flex items-center space-x-2">
+                        <span><i class="fa-regular fa-user mr-1"></i><span id="modalAuthor">김설월</span></span>
+                        <span>•</span>
+                        <span><i class="fa-regular fa-clock mr-1"></i><span id="modalDate">2026.10.27</span></span>
+                    </p>
+
+                    <!-- Description -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl text-slate-700 text-sm leading-relaxed mb-6 border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-1">관찰 일지</h4>
+                        <p id="modalDescription">자주달개비 잎의 뒷면 표피를 떼어내어 표피세포와 공변세포, 기공을 관찰하였습니다.</p>
+                    </div>
+
+                    <!-- Interactions -->
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                        <button id="modalLikeBtn" onclick="toggleLikeModal()" class="flex items-center space-x-2 text-slate-600 hover:text-rose-500 transition-colors text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-rose-50">
+                            <i class="fa-regular fa-heart text-base text-rose-500" id="modalHeartIcon"></i>
+                            <span id="modalLikeCount">0</span>
+                        </button>
+                        <span class="text-xs text-slate-400"><i class="fa-regular fa-eye mr-1"></i>조회수 <span id="modalViews">0</span></span>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">응원 댓글</h4>
+                        <div id="commentList" class="space-y-2 mb-4 max-h-36 overflow-y-auto pr-1 text-xs">
+                            <!-- Dynamic Comments -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Comment Input -->
+                <div class="pt-3 border-t border-slate-100 mt-2">
+                    <form onsubmit="handleAddComment(event)" class="flex gap-2">
+                        <input type="text" id="commentInput" placeholder="칭찬과 질문을 남겨보세요..." required 
+                               class="flex-1 text-xs bg-slate-100 border-none rounded-xl px-3 py-2 focus:ring-1 focus:ring-seolwol-500">
+                        <button type="submit" class="bg-seolwol-600 text-white px-3 py-2 rounded-xl text-xs font-semibold hover:bg-seolwol-700">작성</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="fixed inset-0 z-50 hidden bg-slate-900/70 micro-blur flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 relative transform transition-all my-auto">
+            <div class="flex justify-between items-center mb-5">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">현미경 사진 작품 등록</h3>
+                    <p class="text-xs text-slate-500">탐구한 미시 세계를 학생들과 공유해보세요.</p>
+                </div>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs sm:text-sm">
+                <!-- Grade & Class Select -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">학년</label>
+                        <select id="uploadGrade" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-seolwol-500">
+                            <option value="1">1학년</option>
+                            <option value="2">2학년</option>
+                            <option value="3">3학년</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">반</label>
+                        <select id="uploadClass" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-seolwol-500">
+                            <!-- JS Generated 1~10반 -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Author & Magnification -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">이름 / 모둠명</label>
+                        <input type="text" id="uploadAuthor" placeholder="예: 김설월 or 3모둠" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-seolwol-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">배율</label>
+                        <input type="text" id="uploadMagnification" placeholder="예: 400x" required
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-seolwol-500">
+                    </div>
+                </div>
+
+                <!-- Specimen Title -->
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">관찰 표본 / 제목</label>
+                    <input type="text" id="uploadTitle" placeholder="예: 양파 표피세포의 삼투 현상" required
+                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-seolwol-500">
+                </div>
+
+                <!-- Image URL or File Upload Simulation -->
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">사진 등록 방식</label>
+                    <div class="space-y-2">
+                        <input type="file" id="uploadFileInput" accept="image/*" onchange="handleFileSelect(event)"
+                               class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-seolwol-50 file:text-seolwol-700 hover:file:bg-seolwol-100 cursor-pointer">
+                        <p class="text-[11px] text-slate-400">* 이미지 파일을 직접 선택하거나 샘플 주소가 자동 입력됩니다.</p>
+                    </div>
+                </div>
+
+                <!-- Observation Log -->
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">관찰 소감 및 특이사항</label>
+                    <textarea id="uploadDescription" rows="3" placeholder="현미경으로 관찰하며 새로 알게 된 점이나 특이한 구조에 대해 적어주세요." required
+                              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-seolwol-500"></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 font-medium">취소</button>
+                    <button type="submit" class="px-5 py-2 bg-seolwol-600 hover:bg-seolwol-700 text-white rounded-xl font-medium shadow-md">작품 등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-sm">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-base" id="toastIcon"></i>
+        <span id="toastMessage">작품이 성공적으로 등록되었습니다!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p class="font-semibold text-slate-700 mb-1">설월여자고등학교 과학탐구실 / 생명과학 동아리</p>
+            <p>© 2026 Seolwol Girls' High School Digital Microscope Exhibition. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Sample Initial Data for Microscope Exhibition
+        const initialData = [
+            {
+                id: 1,
+                grade: 1,
+                classNum: 2,
+                title: "자주달개비 잎 표피 기공 관찰",
+                author: "1학년 2반 3모둠",
+                magnification: "400x",
+                imageUrl: "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=800&q=80",
+                description: "자주달개비 잎 뒷면 표피를 떼어내어 관찰했습니다. 두 개의 공변세포 사이에 기공이 열려있는 모습을 명확히 확인했습니다.",
+                likes: 24,
+                views: 142,
+                date: "2026.10.25",
+                comments: [{ author: "이선생님", text: "공변세포의 염색체가 아주 선명하게 잘 나왔네요!" }]
+            },
+            {
+                id: 2,
+                grade: 1,
+                classNum: 5,
+                title: "양파 표피세포 및 핵 염색",
+                author: "김민서",
+                magnification: "200x",
+                imageUrl: "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=800&q=80",
+                description: "아세토산카민 용액으로 염색한 양파 표피세포입니다. 규칙적인 뚜렷한 세포벽과 붉게 염색된 핵을 볼 수 있습니다.",
+                likes: 38,
+                views: 210,
+                date: "2026.10.24",
+                comments: [{ author: "박지유", text: "세포벽 모양이 너무 예쁘게 잡혔다!" }]
+            },
+            {
+                id: 3,
+                grade: 2,
+                classNum: 1,
+                title: "짚신벌레의 원생동물 운동",
+                author: "2학년 1반 탐구조",
+                magnification: "100x",
+                imageUrl: "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=800&q=80",
+                description: "연못물에서 채취한 샘플에서 짚신벌레를 발견했습니다. 섬모를 이용해 빠르게 이동하는 모습을 디지털 카메라로 캡처했습니다.",
+                likes: 45,
+                views: 315,
+                date: "2026.10.26",
+                comments: []
+            },
+            {
+                id: 4,
+                grade: 2,
+                classNum: 3,
+                title: "패브릭 섬유 단면 구조",
+                author: "최수아",
+                magnification: "80x",
+                imageUrl: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
+                description: "교복 치마 원단을 현미경으로 확대한 사진입니다. 실들이 촘촘하게 교차하며 꼬여있는 구조가 인상적입니다.",
+                likes: 19,
+                views: 98,
+                date: "2026.10.22",
+                comments: []
+            },
+            {
+                id: 5,
+                grade: 3,
+                classNum: 4,
+                title: "소나무 송화가루(화분)의 비상 구조",
+                author: "3학년 4반 생명반",
+                magnification: "400x",
+                imageUrl: "https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&w=800&q=80",
+                description: "봄철 채집해둔 송화가루입니다. 양쪽에 공기주머니가 달려있어 바람에 잘 날아갈 수 있는 형태임을 직접 확인했습니다.",
+                likes: 52,
+                views: 405,
+                date: "2026.10.20",
+                comments: [{ author: "정예원", text: "공기주머니 진짜 귀엽게 보이네요 ㅋㅋㅋ" }]
+            },
+            {
+                id: 6,
+                grade: 3,
+                classNum: 2,
+                title: "혈액 아구세포 및 적혈구 형태",
+                author: "동아리 '바이오설월'",
+                magnification: "1000x",
+                imageUrl: "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=800&q=80",
+                description: "사람의 적혈구 형태를 침유 렌즈(1000x)를 통해 관찰했습니다. 원반형 모양의 오목한 중심부가 관찰됩니다.",
+                likes: 67,
+                views: 520,
+                date: "2026.10.27",
+                comments: [{ author: "생물쌤", text: "1000배율 초점 잡느라 수고 많았습니다. 최고!" }]
+            }
+        ];
+
+        // State Management
+        let posts = JSON.parse(localStorage.getItem('seolwol_micro_posts')) || initialData;
+        let selectedGrade = 'all'; // 'all', '1', '2', '3'
+        let selectedClass = 'all'; // 'all', '1' ~ '10'
+        let activePostId = null;
+        let uploadedImgBase64 = null;
+
+        // Initialize Page
+        window.addEventListener('DOMContentLoaded', () => {
+            renderClassFilters();
+            renderGallery();
+            populateClassSelectOptions();
+        });
+
+        // Save State
+        function savePosts() {
+            localStorage.setItem('seolwol_micro_posts', JSON.stringify(posts));
+        }
+
+        // Render Class Buttons (1반~10반)
+        function renderClassFilters() {
+            const container = document.getElementById('classFilterContainer');
+            let html = `
+                <button onclick="setClassFilter('all')" class="class-btn active px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all bg-seolwol-100 text-seolwol-700">전체 반</button>
+            `;
+            for (let i = 1; i <= 10; i++) {
+                html += `
+                    <button onclick="setClassFilter('${i}')" class="class-btn px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">${i}반</button>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function populateClassSelectOptions() {
+            const select = document.getElementById('uploadClass');
+            select.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                select.innerHTML += `<option value="${i}">${i}반</option>`;
+            }
+        }
+
+        // Filter Grade Function
+        function setGradeFilter(grade) {
+            selectedGrade = grade;
+            const buttons = document.querySelectorAll('#gradeFilterContainer .grade-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-seolwol-600', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.target.classList.remove('bg-slate-100', 'text-slate-600');
+            event.target.classList.add('bg-seolwol-600', 'text-white', 'shadow-sm');
+
+            filterGallery();
+        }
+
+        // Filter Class Function
+        function setClassFilter(classNum) {
+            selectedClass = classNum;
+            const buttons = document.querySelectorAll('#classFilterContainer .class-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-seolwol-100', 'text-seolwol-700', 'font-bold');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.target.classList.remove('bg-slate-100', 'text-slate-600');
+            event.target.classList.add('bg-seolwol-100', 'text-seolwol-700', 'font-bold');
+
+            filterGallery();
+        }
+
+        function resetFilters() {
+            setGradeFilter('all');
+            setClassFilter('all');
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'latest';
+            renderGallery();
+        }
+
+        // Filter & Sort Logic
+        function filterGallery() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sortBy = document.getElementById('sortSelect').value;
+
+            let filtered = posts.filter(post => {
+                const matchGrade = selectedGrade === 'all' || post.grade.toString() === selectedGrade;
+                const matchClass = selectedClass === 'all' || post.classNum.toString() === selectedClass;
+                const matchSearch = post.title.toLowerCase().includes(searchQuery) || 
+                                    post.author.toLowerCase().includes(searchQuery) ||
+                                    post.description.toLowerCase().includes(searchQuery);
+
+                return matchGrade && matchClass && matchSearch;
+            });
+
+            // Sorting
+            if (sortBy === 'latest') {
+                filtered.sort((a, b) => b.id - a.id);
+            } else if (sortBy === 'likes') {
+                filtered.sort((a, b) => b.likes - a.likes);
+            } else if (sortBy === 'views') {
+                filtered.sort((a, b) => b.views - a.views);
+            }
+
+            renderGalleryItems(filtered);
+        }
+
+        // Render Gallery Items to UI
+        function renderGallery() {
+            filterGallery();
+        }
+
+        function renderGalleryItems(items) {
+            const grid = document.getElementById('galleryGrid');
+            const emptyState = document.getElementById('emptyState');
+            document.getElementById('totalCount').innerText = items.length;
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = items.map(item => `
+                <div onclick="openDetailModal(${item.id})" class="group bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col">
+                    <!-- Image Wrapper -->
+                    <div class="relative aspect-square overflow-hidden bg-slate-900">
+                        <img src="${item.imageUrl}" alt="${item.title}" onerror="this.src='https://placehold.co/600x600/1e293b/ffffff?text=Microscope+Image'" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                            <span class="text-xs text-white/90 font-medium line-clamp-1"><i class="fa-solid fa-magnifying-glass mr-1"></i>자세히 보기</span>
+                        </div>
+                        <span class="absolute top-3 left-3 bg-slate-900/70 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono px-2 py-0.5 rounded-full backdrop-blur-md">
+                            ${item.magnification}
+                        </span>
+                        <span class="absolute top-3 right-3 bg-seolwol-600/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-md shadow">
+                            ${item.grade}학년 ${item.classNum}반
+                        </span>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm mb-1 group-hover:text-seolwol-600 transition-colors line-clamp-1">${item.title}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">${item.description}</p>
+                        </div>
+                        
+                        <!-- Footer metadata -->
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                            <span class="font-medium text-slate-600">${item.author}</span>
+                            <div class="flex items-center space-x-2">
+                                <span><i class="fa-regular fa-heart text-rose-500 mr-0.5"></i>${item.likes}</span>
+                                <span><i class="fa-regular fa-eye mr-0.5"></i>${item.views}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open Detail Modal
+        function openDetailModal(id) {
+            activePostId = id;
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+
+            // Increment Views
+            post.views += 1;
+            savePosts();
+            renderGallery();
+
+            document.getElementById('modalImage').src = post.imageUrl;
+            document.getElementById('modalTitle').innerText = post.title;
+            document.getElementById('modalAuthor').innerText = post.author;
+            document.getElementById('modalDate').innerText = post.date;
+            document.getElementById('modalDescription').innerText = post.description;
+            document.getElementById('modalMagnification').innerText = post.magnification;
+            document.getElementById('modalClassBadge').innerText = `${post.grade}학년 ${post.classNum}반`;
+            document.getElementById('modalLikeCount').innerText = post.likes;
+            document.getElementById('modalViews').innerText = post.views;
+
+            renderComments(post.comments || []);
+
+            const modal = document.getElementById('detailModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            activePostId = null;
+        }
+
+        function toggleLikeModal() {
+            if (!activePostId) return;
+            const post = posts.find(p => p.id === activePostId);
+            if (post) {
+                post.likes += 1;
+                document.getElementById('modalLikeCount').innerText = post.likes;
+                savePosts();
+                renderGallery();
+                showToast("좋아요를 눌렀습니다! ❤️");
+            }
+        }
+
+        function renderComments(comments) {
+            const list = document.getElementById('commentList');
+            if (comments.length === 0) {
+                list.innerHTML = `<p class="text-slate-400 italic text-[11px]">작성된 댓글이 없습니다. 첫 댓글을 달아주세요!</p>`;
+                return;
+            }
+            list.innerHTML = comments.map(c => `
+                <div class="bg-slate-50 p-2 rounded-lg">
+                    <span class="font-bold text-slate-700">${c.author}</span>
+                    <span class="text-slate-600 ml-1">${c.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function handleAddComment(e) {
+            e.preventDefault();
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if (!text || !activePostId) return;
+
+            const post = posts.find(p => p.id === activePostId);
+            if (post) {
+                if (!post.comments) post.comments = [];
+                post.comments.push({
+                    author: "설월 학생",
+                    text: text
+                });
+                savePosts();
+                renderComments(post.comments);
+                input.value = '';
+                showToast("댓글이 등록되었습니다!");
+            }
+        }
+
+        // Handle File Select for Upload
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImgBase64 = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Upload Modal Actions
+        function openUploadModal() {
+            uploadedImgBase64 = null;
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const grade = parseInt(document.getElementById('uploadGrade').value);
+            const classNum = parseInt(document.getElementById('uploadClass').value);
+            const author = document.getElementById('uploadAuthor').value.trim();
+            const magnification = document.getElementById('uploadMagnification').value.trim();
+            const title = document.getElementById('uploadTitle').value.trim();
+            const description = document.getElementById('uploadDescription').value.trim();
+
+            // Fallback sample images if user didn't select custom file
+            const sampleImages = [
+                "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&w=800&q=80"
+            ];
+            const randomSample = sampleImages[Math.floor(Math.random() * sampleImages.length)];
+
+            const newPost = {
+                id: Date.now(),
+                grade: grade,
+                classNum: classNum,
+                title: title,
+                author: author,
+                magnification: magnification,
+                imageUrl: uploadedImgBase64 || randomSample,
+                description: description,
+                likes: 0,
+                views: 0,
+                date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+                comments: []
+            };
+
+            posts.unshift(newPost);
+            savePosts();
+            renderGallery();
+            closeUploadModal();
+            showToast("새로운 현미경 관찰 사진이 성공적으로 올라갔습니다!");
+
+            // Form Reset
+            e.target.reset();
+        }
+
+        // Toast Notification Helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
